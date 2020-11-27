@@ -8,8 +8,9 @@ import (
 	"github.com/beevik/ntp"
 )
 
+const pool = "0.beevik-ntp.pool.ntp.org"
+
 func main() {
-	var pool string = "0.beevik-ntp.pool.ntp.org"
 	ntpTime, err := ntp.Time(pool)
 
 	if err != nil {
