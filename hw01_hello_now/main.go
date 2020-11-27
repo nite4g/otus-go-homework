@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	//zero diff
 	var pool string = "0.beevik-ntp.pool.ntp.org"
 	ntpTime, err := ntp.Time(pool)
 
