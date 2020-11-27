@@ -1,4 +1,4 @@
-module github.com/fixme_my_friend/hw01_hello_now
+module github.com/nite4g/otus-go-homework/hw01_hello_now
 
 go 1.15
 
