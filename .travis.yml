@@ -1,5 +1,7 @@
 language: go
 
+cache: false
+
 go:
   - "1.15"
 
