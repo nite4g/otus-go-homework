@@ -14,8 +14,8 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("FAILED connection to %s", pool)
-	} else {
-		fmt.Println("current time:", time.Now().Round(0))
-		fmt.Println("exact time:", ntpTime.Round(0))
 	}
+
+	fmt.Println("current time:", time.Now().Round(0))
+	fmt.Println("exact time:", ntpTime.Round(0))
 }
