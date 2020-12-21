@@ -18,7 +18,6 @@ func Unpack(comp_str string) (string, error) { // 60 max length in the 2020 !?
 	comp_str = strings.ReplaceAll(comp_str, "\t", "") // remove all white spaces
 	for i := 1; i < len(comp_str); i++ {
 		if unicode.IsDigit(rune(comp_str[0])) {
-			// statement will cath fist digit
 			return "", ErrInvalidString
 		}
 
