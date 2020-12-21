@@ -9,7 +9,7 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(comp_str string) (string, error) { // 60 max length in the 2020 !?
+func Unpack(comp_str string) (string, error) {
 
 	var sbResult strings.Builder
 	var sbEscSeq strings.Builder
@@ -30,21 +30,20 @@ func Unpack(comp_str string) (string, error) { // 60 max length in the 2020 !?
 		if sbEscSeq.Len() > 0 && unicode.IsDigit(rune(next)) { // switch not an issue
 			var num int
 			num, _ = strconv.Atoi(string(next))
-			if num == 0 {
-				continue
+			if num != 0 {
+				sbResult.WriteString(strings.Repeat(sbEscSeq.String(), num))
+				sbEscSeq.Reset()
 			}
-			sbResult.WriteString(strings.Repeat(sbEscSeq.String(), num))
-			sbEscSeq.Reset()
-			continue
+
 		} else if sbEscSeq.Len() > 0 && !unicode.IsDigit(rune(next)) {
 			sbResult.WriteString(sbEscSeq.String())
 			sbEscSeq.Reset()
-			continue
+
 		} else if unicode.IsDigit(rune(current)) && !unicode.IsDigit(rune(next)) {
 			if i == len(comp_str)-1 {
 				sbResult.WriteByte(next)
 			}
-			continue
+
 		} else if string(current) == `\` {
 			// create sequences of chars
 			if string(next) == `n` { // switch not the best choise here
@@ -56,6 +55,7 @@ func Unpack(comp_str string) (string, error) { // 60 max length in the 2020 !?
 				return "", ErrInvalidString
 			} else {
 				sbResult.WriteByte(current)
+
 				if i == len(comp_str)-1 {
 					sbResult.WriteByte(next)
 				}
@@ -66,10 +66,12 @@ func Unpack(comp_str string) (string, error) { // 60 max length in the 2020 !?
 		} else if !unicode.IsDigit(rune(current)) && unicode.IsDigit(rune(next)) {
 			var num int
 			num, _ = strconv.Atoi(string(next))
-			if num == 0 {
-				continue
+			if num != 0 {
+				sbResult.WriteString(strings.Repeat(string(current), num))
 			}
-			sbResult.WriteString(strings.Repeat(string(current), num))
+		} else if unicode.IsDigit(rune(current)) &&
+			unicode.IsDigit(rune(next)) && sbEscSeq.Len() == 0 {
+			return "", ErrInvalidString
 		} else {
 			sbResult.WriteByte(current)
 			if i == len(comp_str)-1 {
@@ -77,10 +79,6 @@ func Unpack(comp_str string) (string, error) { // 60 max length in the 2020 !?
 			}
 		}
 
-		if unicode.IsDigit(rune(current)) &&
-			unicode.IsDigit(rune(next)) && sbEscSeq.Len() == 0 {
-			return "", ErrInvalidString
-		}
 	}
 
 	return sbResult.String(), nil
