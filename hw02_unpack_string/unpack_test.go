@@ -101,11 +101,19 @@ func TestUnpackWithEscape(t *testing.T) {
 		},
 		{
 			input:    `a4bc2d5e\a`,
-			expected: `aaaabccddddde\a`,
+			expected: `aaaabccdddddea`,
 		},
 		{
 			input:    `\ 3фыва`,
 			expected: `3фыва`,
+		},
+		{
+			input:    `a\30hh`,
+			expected: `ahh`,
+		},
+		{
+			input:    `v\n0e`,
+			expected: `ve`,
 		},
 		{
 			input:    "\\` 3фыва",

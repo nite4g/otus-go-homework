@@ -9,77 +9,99 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(comp_str string) (string, error) {
+func repeatOrDel(seq *strings.Builder, char rune) (string, error) {
+	var resStr string
+	var num int
+	num, err := strconv.Atoi(string(char))
 
-	var sbResult strings.Builder
-	var sbEscSeq strings.Builder
-
-	comp_str = strings.ReplaceAll(comp_str, " ", "")  // remove all white spaces
-	comp_str = strings.ReplaceAll(comp_str, "\t", "") // remove all white spaces
-	for i := 1; i < len(comp_str); i++ {
-		if unicode.IsDigit(rune(comp_str[0])) {
-			return "", ErrInvalidString
-		}
-
-		if i == len(comp_str)-1 && string(comp_str[len(comp_str)-1]) == `\` {
-			continue
-		}
-
-		current := comp_str[i-1]
-		next := comp_str[i]
-		if sbEscSeq.Len() > 0 && unicode.IsDigit(rune(next)) { // switch not an issue
-			var num int
-			num, _ = strconv.Atoi(string(next))
-			if num != 0 {
-				sbResult.WriteString(strings.Repeat(sbEscSeq.String(), num))
-				sbEscSeq.Reset()
-			}
-
-		} else if sbEscSeq.Len() > 0 && !unicode.IsDigit(rune(next)) {
-			sbResult.WriteString(sbEscSeq.String())
-			sbEscSeq.Reset()
-
-		} else if unicode.IsDigit(rune(current)) && !unicode.IsDigit(rune(next)) {
-			if i == len(comp_str)-1 {
-				sbResult.WriteByte(next)
-			}
-
-		} else if string(current) == `\` {
-			// create sequences of chars
-			if string(next) == `n` { // switch not the best choise here
-				sbEscSeq.WriteByte(current)
-				sbEscSeq.WriteByte(next)
-			} else if string(next) == `\` || unicode.IsDigit(rune(next)) {
-				sbEscSeq.WriteByte(next)
-			} else if string(next) == "`" {
-				return "", ErrInvalidString
-			} else {
-				sbResult.WriteByte(current)
-
-				if i == len(comp_str)-1 {
-					sbResult.WriteByte(next)
-				}
-			}
-			if i == len(comp_str)-1 {
-				sbResult.WriteString(sbEscSeq.String())
-			}
-		} else if !unicode.IsDigit(rune(current)) && unicode.IsDigit(rune(next)) {
-			var num int
-			num, _ = strconv.Atoi(string(next))
-			if num != 0 {
-				sbResult.WriteString(strings.Repeat(string(current), num))
-			}
-		} else if unicode.IsDigit(rune(current)) &&
-			unicode.IsDigit(rune(next)) && sbEscSeq.Len() == 0 {
-			return "", ErrInvalidString
-		} else {
-			sbResult.WriteByte(current)
-			if i == len(comp_str)-1 {
-				sbResult.WriteByte(next)
-			}
-		}
-
+	if err != nil {
+		return "", ErrInvalidString
 	}
 
-	return sbResult.String(), nil
+	if num == 0 {
+		return "", nil
+	}
+
+	resStr = strings.Repeat(seq.String(), num)
+
+	return resStr, nil
+}
+
+func normString(st string) (string, error) {
+	st = strings.ReplaceAll(st, " ", "")  // remove all white spaces
+	st = strings.ReplaceAll(st, "\t", "") // remove all white spaces
+
+	if len(st) == 0 {
+		return "", nil
+	}
+
+	if unicode.IsDigit(rune(st[0])) {
+		return "", ErrInvalidString
+	}
+
+	return st, nil
+}
+
+var state string = `default`
+var wasDigit bool // just to control pair digit in the raw
+
+func Unpack(compStr string) (string, error) { //nolint:gocognit
+	var charSeq strings.Builder
+	var resultStr strings.Builder
+
+	compStr, nErr := normString(compStr)
+	if nErr != nil {
+		return "", nErr
+	}
+
+	for _, char := range compStr {
+		switch state {
+		case `default`:
+			if unicode.IsDigit(char) {
+				if wasDigit {
+					return "", ErrInvalidString
+				}
+				tStr, err := repeatOrDel(&charSeq, char)
+				if err != nil {
+					return "", ErrInvalidString
+				}
+				resultStr.WriteString(tStr)
+				charSeq.Reset()
+				wasDigit = true
+				continue
+			}
+
+			if string(char) == `\` {
+				state = `slashed`
+				// resultStr.WriteString(charSeq.String())
+				if charSeq.Len() > 0 {
+					resultStr.WriteString(charSeq.String())
+				}
+				charSeq.Reset()
+			} else {
+				if charSeq.Len() != 0 {
+					resultStr.WriteString(charSeq.String())
+					charSeq.Reset()
+				}
+				charSeq.WriteRune(char)
+			}
+		case `slashed`:
+			if string(char) == "`" {
+				return "", ErrInvalidString
+			}
+			if string(char) == `n` {
+				charSeq.WriteString(`\`)
+				charSeq.WriteRune(char)
+			} else {
+				charSeq.WriteRune(char)
+			}
+			state = `default`
+		}
+		wasDigit = false
+	}
+	if charSeq.Len() != 0 {
+		resultStr.WriteString(charSeq.String())
+	}
+
+	return resultStr.String(), nil
 }
