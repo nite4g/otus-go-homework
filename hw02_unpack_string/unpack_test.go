@@ -84,11 +84,11 @@ func TestUnpackWithEscape(t *testing.T) {
 			expected: `qwe\\\\\`,
 		},
 		{
-			input: `qwe\\	\3`,
+			input:    `qwe\\\3`,
 			expected: `qwe\3`,
 		},
 		{
-			input:    `gfg  r\3`,
+			input:    `gfgr\3`,
 			expected: `gfgr3`,
 		},
 		{

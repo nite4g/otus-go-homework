@@ -42,10 +42,10 @@ func normString(st string) (string, error) {
 	return st, nil
 }
 
-var state string = `default`
-var wasDigit bool // just to control pair digit in the raw
-
 func Unpack(compStr string) (string, error) { //nolint:gocognit
+	var wasDigit bool // just to control pair digit in the raw
+	var state string = "default"
+
 	var charSeq strings.Builder
 	var resultStr strings.Builder
 
@@ -91,10 +91,9 @@ func Unpack(compStr string) (string, error) { //nolint:gocognit
 			}
 			if string(char) == `n` {
 				charSeq.WriteString(`\`)
-				charSeq.WriteRune(char)
-			} else {
-				charSeq.WriteRune(char)
 			}
+			charSeq.WriteRune(char)
+
 			state = `default`
 		}
 		wasDigit = false
