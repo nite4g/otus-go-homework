@@ -2,6 +2,7 @@ package hw02_unpack_string //nolint:golint,stylecheck
 
 import (
 	"errors"
+	"log"
 	"strconv"
 	"strings"
 	"unicode"
@@ -28,9 +29,6 @@ func repeatOrDel(seq *strings.Builder, char rune) (string, error) {
 }
 
 func normString(st string) (string, error) {
-	st = strings.ReplaceAll(st, " ", "")  // remove all white spaces
-	st = strings.ReplaceAll(st, "\t", "") // remove all white spaces
-
 	if len(st) == 0 {
 		return "", nil
 	}
@@ -39,24 +37,33 @@ func normString(st string) (string, error) {
 		return "", ErrInvalidString
 	}
 
+	if string(st[len(st)-1]) == `\` {
+		return "", ErrInvalidString
+	}
+
 	return st, nil
 }
 
-func Unpack(compStr string) (string, error) { //nolint:gocognit
+func Unpack(compStr string) (string, error) { //nolint:gocognit,funlen
 	var wasDigit bool // just to control pair digit in the raw
-	var state string = "default"
+	var charSeq, resultStr strings.Builder
 
-	var charSeq strings.Builder
-	var resultStr strings.Builder
+	type states string
+	const (
+		defaultState states = "default"
+		slashedState states = "slashed"
+	)
 
+	state := defaultState
 	compStr, nErr := normString(compStr)
+
 	if nErr != nil {
 		return "", nErr
 	}
 
 	for _, char := range compStr {
 		switch state {
-		case `default`:
+		case defaultState:
 			if unicode.IsDigit(char) {
 				if wasDigit {
 					return "", ErrInvalidString
@@ -72,8 +79,7 @@ func Unpack(compStr string) (string, error) { //nolint:gocognit
 			}
 
 			if string(char) == `\` {
-				state = `slashed`
-				// resultStr.WriteString(charSeq.String())
+				state = slashedState
 				if charSeq.Len() > 0 {
 					resultStr.WriteString(charSeq.String())
 				}
@@ -85,19 +91,20 @@ func Unpack(compStr string) (string, error) { //nolint:gocognit
 				}
 				charSeq.WriteRune(char)
 			}
-		case `slashed`:
+		case slashedState:
 			if string(char) == "`" {
 				return "", ErrInvalidString
 			}
-			if string(char) == `n` {
-				charSeq.WriteString(`\`)
-			}
 			charSeq.WriteRune(char)
 
-			state = `default`
+			state = defaultState
+		default:
+			log.Fatal("Undefined state.")
 		}
+
 		wasDigit = false
 	}
+
 	if charSeq.Len() != 0 {
 		resultStr.WriteString(charSeq.String())
 	}

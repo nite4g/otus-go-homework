@@ -92,19 +92,19 @@ func TestUnpackWithEscape(t *testing.T) {
 			expected: `gfgr3`,
 		},
 		{
-			input:    `dfe\n1\`,
-			expected: `dfe\n`,
+			input:    "dfe\n1",
+			expected: "dfe\n",
 		},
 		{
-			input:    `f\n2xr`,
-			expected: `f\n\nxr`,
+			input:    "f 2xr",
+			expected: "f  xr",
 		},
 		{
 			input:    `a4bc2d5e\a`,
 			expected: `aaaabccdddddea`,
 		},
 		{
-			input:    `\ 3фыва`,
+			input:    `\3фыва`,
 			expected: `3фыва`,
 		},
 		{
@@ -112,8 +112,13 @@ func TestUnpackWithEscape(t *testing.T) {
 			expected: `ahh`,
 		},
 		{
-			input:    `v\n0e`,
-			expected: `ve`,
+			input:    "v\t0e",
+			expected: "ve",
+		},
+		{
+			input:    `dkufe\`,
+			expected: "",
+			err:      ErrInvalidString,
 		},
 		{
 			input:    "\\` 3фыва",
