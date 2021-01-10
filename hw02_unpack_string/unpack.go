@@ -10,7 +10,7 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-func repeatOrDel(seq *strings.Builder, char rune) (string, error) {
+func repeatOrDel(seq strings.Builder, char rune) (string, error) {
 	var resStr string
 	var num int
 	num, err := strconv.Atoi(string(char))
@@ -69,7 +69,7 @@ func Unpack(compStr string) (string, error) { //nolint:gocognit,funlen
 				if wasDigit {
 					return "", ErrInvalidString
 				}
-				tStr, err := repeatOrDel(&charSeq, char)
+				tStr, err := repeatOrDel(charSeq, char)
 				if err != nil {
 					return "", ErrInvalidString
 				}
