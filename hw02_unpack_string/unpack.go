@@ -46,7 +46,8 @@ func normString(st string) (string, error) {
 
 func Unpack(compStr string) (string, error) { //nolint:gocognit,funlen
 	var wasDigit bool // just to control pair digit in the raw
-	var charSeq, resultStr strings.Builder
+	var charSeq strings.Builder
+	var resultStr strings.Builder
 
 	type states string
 	const (
