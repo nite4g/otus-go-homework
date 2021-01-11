@@ -2,7 +2,6 @@ package hw02_unpack_string //nolint:golint,stylecheck
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"strings"
 	"unicode"
@@ -93,14 +92,14 @@ func Unpack(compStr string) (string, error) { //nolint:gocognit,funlen
 				charSeq.WriteRune(char)
 			}
 		case slashedState:
-			if string(char) == "`" {
+			if string(char) != `\` && !unicode.IsDigit(char) {
 				return "", ErrInvalidString
 			}
 			charSeq.WriteRune(char)
 
 			state = defaultState
 		default:
-			log.Fatal("Undefined state.")
+			state = defaultState
 		}
 
 		wasDigit = false

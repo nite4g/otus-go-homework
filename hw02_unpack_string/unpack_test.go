@@ -100,7 +100,7 @@ func TestUnpackWithEscape(t *testing.T) {
 			expected: "f  xr",
 		},
 		{
-			input:    `a4bc2d5e\a`,
+			input:    `a4bc2d5ea`,
 			expected: `aaaabccdddddea`,
 		},
 		{
@@ -117,6 +117,11 @@ func TestUnpackWithEscape(t *testing.T) {
 		},
 		{
 			input:    `dkufe\`,
+			expected: "",
+			err:      ErrInvalidString,
+		},
+		{
+			input:    `sd\ie`,
 			expected: "",
 			err:      ErrInvalidString,
 		},
