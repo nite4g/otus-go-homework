@@ -1,4 +1,4 @@
-package hw04_lru_cache
+package hw04_lru_cache //nolint:golint,stylecheck
 
 type Key string
 
@@ -7,7 +7,7 @@ type Cache interface {
 	// Set(key Key, item interface{}) bool // Добавить значение в кэш по ключу.
 	Set(key Key, item int) bool      // Добавить значение в кэш по ключу.
 	Get(key Key) (interface{}, bool) // Получить значение из кэша по ключу.
-	Len() int                        // cache length
+	Len() int                        // cache length.
 }
 
 type lruCache struct {
@@ -21,12 +21,11 @@ type cacheItem struct {
 	value interface{}
 }
 
-// func (c *lruCache) Set(key Key, value interface{}) bool {
 func (c *lruCache) Set(key Key, value int) bool {
 	ci := cacheItem{key: string(key), value: value}
 
 	if len(c.items) == 0 {
-		c.items[key] = c.queue.PushFront(ci) // передаваться должен cacheItem
+		c.items[key] = c.queue.PushFront(ci) // передаваться должен cacheItem.
 	} else if val, found := c.items[key]; found {
 		val.Value = ci
 		c.queue.MoveToFront(val)
@@ -37,7 +36,6 @@ func (c *lruCache) Set(key Key, value int) bool {
 	}
 
 	if c.queue.Len() > c.capacity {
-		// как я люблю  type assertions в go :)
 		k := c.queue.Back().Value.(cacheItem).key
 		delete(c.items, Key(k))
 		c.queue.Remove(c.queue.Back())
@@ -58,7 +56,7 @@ func (c *lruCache) Get(key Key) (interface{}, bool) {
 }
 
 func (c *lruCache) Clear() {
-	// присваиваем новые объекты, старые удалит GC
+	// присваиваем новые объекты, старые удалит GC.
 	c.items = make(map[Key]*ListItem)
 	c.queue = NewList()
 }
@@ -75,5 +73,5 @@ func NewCache(capacity int) Cache {
 }
 
 func NewList() List {
-	return new(list) // синтакический сахар для &list
+	return new(list) // синтакический сахар для &list.
 }

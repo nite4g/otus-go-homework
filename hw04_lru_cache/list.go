@@ -1,4 +1,4 @@
-package hw04_lru_cache
+package hw04_lru_cache //nolint:golint,stylecheck
 
 import (
 	"fmt"
@@ -107,7 +107,7 @@ func (l *list) Remove(node *ListItem) {
 		return
 	}
 	if node.Next == nil && node.Prev == nil {
-		// queue could not remove itself
+		// queue could not remove itself.
 		return
 	}
 	log.Fatalln("Undef Case for queue Remove() method")
@@ -115,17 +115,17 @@ func (l *list) Remove(node *ListItem) {
 
 func (l *list) MoveToFront(node *ListItem) {
 	if node == nil {
-		// do if node really exists
+		// do if node really exists.
 		return
 	}
 
 	if l.Length == 1 {
-		// single element. do nothing
+		// single element. do nothing.
 		return
 	}
 
 	l.Remove(node)
-	l.Length++ // bacause Remove() always do length--
+	l.Length++ // bacause Remove() always do length--.
 	l.Head.Prev = node
 	node.Next = l.Head
 	node.Prev = nil
@@ -133,7 +133,7 @@ func (l *list) MoveToFront(node *ListItem) {
 }
 
 func (l *list) Scan() {
-	// For testing purposes
+	// For testing purposes.
 	var root *ListItem
 	root = l.Head
 	for root != nil {
