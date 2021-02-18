@@ -24,9 +24,7 @@ type cacheItem struct {
 func (c *lruCache) Set(key Key, value int) bool {
 	ci := cacheItem{key: string(key), value: value}
 
-	if len(c.items) == 0 {
-		c.items[key] = c.queue.PushFront(ci) // передаваться должен cacheItem.
-	} else if val, found := c.items[key]; found {
+	if val, found := c.items[key]; found {
 		val.Value = ci
 		c.queue.MoveToFront(val)
 		c.items[key] = val
@@ -47,7 +45,7 @@ func (c *lruCache) Set(key Key, value int) bool {
 func (c *lruCache) Get(key Key) (interface{}, bool) {
 	if item, found := c.items[key]; found {
 		c.queue.MoveToFront(item)
-		c.items[key] = item
+		// c.items[key] = item
 		result := item.Value.(cacheItem).value
 		return result, true
 	}
