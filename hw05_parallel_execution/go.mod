@@ -1,4 +1,4 @@
-module github.com/nite4g/otus-go-homeworkl/hw05_parallel_execution
+module github.com/nite4g/otus-go-homework/hw05_parallel_execution
 
 go 1.15
 
