@@ -65,7 +65,6 @@ func Run(tasks []Task, n int, m int) error {
 	wg.Wait()
 
 	if atomic.LoadUint64(&errCount) >= uint64(m) {
-		// fmt.Printf("Err: %v\n", atomic.LoadUint64(&errCount))
 		return ErrErrorsLimitExceeded
 	}
 	return nil
