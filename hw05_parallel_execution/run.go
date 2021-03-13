@@ -3,10 +3,8 @@ package hw05_parallel_execution //nolint:golint,stylecheck
 import (
 	"context"
 	"errors"
-	"math/rand"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -22,16 +20,17 @@ func consumer(ctx context.Context, wg *sync.WaitGroup, ch chan Task, m int) {
 		select {
 		case <-ctx.Done():
 			return
-		case t := <-ch:
-			e := t()
+		case t, ok := <-ch:
 
-			if atomic.LoadUint64(&errCount) >= uint64(m) {
+			if atomic.LoadUint64(&errCount) >= uint64(m) || !ok {
+				//fmt.Printf("Routine: %+v  - %v\n", id, atomic.LoadUint64(&errCount))
 				return
 			}
 
-			if e != nil { // function gonna return  only error
-				// some random sleep to mash goroutine run time
-				time.Sleep(time.Millisecond * time.Duration(rand.Intn(50))) //nolint:gosec
+			out := t()
+			if out != nil {
+				//  увеличиваем счетчик ошибок только в том случае если функция возвращает
+				// то-то отличное от nil
 				atomic.AddUint64(&errCount, 1)
 			}
 		}
@@ -55,6 +54,7 @@ func Run(tasks []Task, n int, m int) error {
 	// producer
 	for _, t := range tasks {
 		if atomic.LoadUint64(&errCount) >= uint64(m) {
+			close(taskChannel)
 			break
 		} else {
 			taskChannel <- t
