@@ -23,7 +23,6 @@ func consumer(ctx context.Context, wg *sync.WaitGroup, ch chan Task, m int) {
 		case t, ok := <-ch:
 
 			if atomic.LoadUint64(&errCount) >= uint64(m) || !ok {
-				//fmt.Printf("Routine: %+v  - %v\n", id, atomic.LoadUint64(&errCount))
 				return
 			}
 
